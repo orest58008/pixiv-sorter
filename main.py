@@ -16,23 +16,22 @@ api.set_auth(
 )
 
 picpath = sys.argv[1]
-picnames = map(
-    lambda x: re.sub(r"_p\d\..+", "", x),
-    filter(
-        lambda s: re.search(r"^\d+_p\d\..+$", s),
-        os.listdir(picpath)
-    )
-)
+picfiles = list(filter(
+    lambda s: re.search(r"^\d+_p\d\..+$", s),
+    os.listdir(picpath)
+))
 
 illusts = map(
     lambda x: (x, api.illust_detail(x)),
-    set(picnames)
+    set(map(lambda x: re.sub(r"_p\d\..+", "", x), picfiles))
 )
 
 illust_tags = {}
 
 for (picname, illust) in illusts:
     if illust.illust == None:
+        if illust.error:
+            raise BaseException(illust.error)
         illust_tags[picname] = "NULL"
         continue
     
@@ -46,10 +45,19 @@ for (picname, illust) in illusts:
     ))
 
     category_tags = [t for t in tags if t in categories]
-    
     if len(category_tags) != 0:
-        illust_tags[illust.illust.id] = category_tags[0]
+        category = category_tags[0]
     else:
-        illust_tags[illust.illust.id] = tags[0] if tags else "NULL"
+        category = tags[0] if tags else "NULL"
+        
+    category_path = os.path.join(picpath, category)
+    if not os.path.exists(category_path):
+        os.mkdir(category_path)
+        print(category_path)
 
-print(illust_tags)
+    illust_files = filter(lambda x: x.find(picname) != -1, picfiles)
+    for f in illust_files:
+        os.rename(
+            os.path.join(picpath, f),
+            os.path.join(category_path, f)
+        )
