@@ -41,7 +41,7 @@ for (picname, illust) in illusts:
             )
         ))
 
-        category_tags = [t for t in tags if t in categories]
+        category_tags = [t for t in categories if t in tags]
         if len(category_tags) != 0:
             category = category_tags[0]
         else:
