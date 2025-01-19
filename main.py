@@ -35,7 +35,7 @@ for (picname, illust) in illusts:
         tags = list(map(
             lambda x: aliases[x] if x in aliases.keys() else x,
             map(
-                lambda x: x.name if x.translated_name is None else
+                lambda x: "" if x.translated_name is None else
                 x.translated_name,
                 illust.illust.tags
             )
@@ -47,7 +47,7 @@ for (picname, illust) in illusts:
         else:
             category = tags[0] if tags else "NULL"
         
-    category_path = os.path.join(picpath, category)
+    category_path = os.path.join(picpath, category.replace('/', '_'))
     if not os.path.exists(category_path):
         os.mkdir(category_path)
         print(category_path)
